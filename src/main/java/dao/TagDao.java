@@ -1,5 +1,6 @@
 package dao;
 
+import generated.tables.records.ReceiptsRecord;
 import generated.tables.records.TagsRecord;
 import org.jooq.Configuration;
 import org.jooq.DSLContext;
@@ -7,7 +8,9 @@ import org.jooq.impl.DSL;
 
 import static com.google.common.base.Preconditions.checkState;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static generated.Tables.RECEIPTS;
 import static generated.Tables.TAGS;
 
 public class TagDao {
@@ -26,7 +29,9 @@ public class TagDao {
         return tagsRecord.getId();
     }
 
-    public List<TagsRecord> getAllTags() {
-        return dsl.selectFrom(TAGS).fetch();
+    public List<ReceiptsRecord> receiptsRecordsWithTag(String tagLabel) {
+        List<Integer> receiptIds = dsl.selectFrom(TAGS).where(TAGS.LABEL.eq(tagLabel)).fetch()
+                .stream().map(x -> x.getReceiptId()).collect(Collectors.toList());
+        return dsl.selectFrom(RECEIPTS).where(RECEIPTS.ID.in(receiptIds)).fetch();
     }
 }
