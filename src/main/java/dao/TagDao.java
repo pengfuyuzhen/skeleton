@@ -20,6 +20,12 @@ public class TagDao {
         this.dsl = DSL.using(jooqConfig);
     }
 
+    public boolean isReceiptTagged(String tagLabel, int receiptId) {
+        TagsRecord record = dsl.selectFrom(TAGS).where(TAGS.RECEIPT_ID.eq(receiptId))
+                .and(TAGS.LABEL.eq(tagLabel)).fetchOne();
+        return record != null;
+    }
+
     public int insert(String tagLabel, int receiptId) {
         TagsRecord tagsRecord = dsl.insertInto(TAGS, TAGS.LABEL, TAGS.RECEIPT_ID)
                 .values(tagLabel, receiptId)
@@ -27,6 +33,11 @@ public class TagDao {
                 .fetchOne();
         checkState(tagsRecord != null && tagsRecord.getId() != null, "Insert failed");
         return tagsRecord.getId();
+    }
+
+    public void remove(String tagLabel, int receiptId) {
+        dsl.deleteFrom(TAGS).where(TAGS.LABEL.eq(tagLabel))
+                .and(TAGS.RECEIPT_ID.eq(receiptId)).execute();
     }
 
     public List<ReceiptsRecord> receiptsRecordsWithTag(String tagLabel) {

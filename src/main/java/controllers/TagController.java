@@ -24,7 +24,11 @@ public class TagController {
     @PUT
     @Path("/{tag}")
     public void toggleTag(@PathParam("tag") String tagLabel, @NotNull CreateTagRequest tag) {
-        tags.insert(tagLabel, tag.receiptId);
+        if (tags.isReceiptTagged(tagLabel, tag.receiptId)) {
+            tags.remove(tagLabel, tag.receiptId);
+        } else {
+            tags.insert(tagLabel, tag.receiptId);
+        }
     }
 
     @GET
