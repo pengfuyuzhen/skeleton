@@ -2,9 +2,7 @@ package controllers;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Context;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpServletRequest;
 import io.dropwizard.jersey.sessions.Session;
 
 // For a Java class to be eligible to receive ANY requests
@@ -19,5 +17,12 @@ public class HelloWorldController {
     @Path("/hello")
     public String helloWorld(@Session HttpSession session) {
         return "Hello World " + session.toString();
+    }
+
+    @GET
+    @Path("/netid")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getNetId() {
+        return "fp73";
     }
 }
