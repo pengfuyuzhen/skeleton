@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 @Path("/tags")
 @Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
 public class TagController {
     final TagDao tags;
 
@@ -31,6 +30,7 @@ public class TagController {
 
     @GET
     @Path("/{tag}")
+    @Produces(MediaType.APPLICATION_JSON)
     public List<ReceiptResponse> getReceiptsWithTag(@PathParam("tag") String tagLabel) {
         List<ReceiptsRecord> receiptRecords = tags.receiptsRecordsWithTag(tagLabel);
         return receiptRecords.stream().map(ReceiptResponse::new).collect(Collectors.toList());
