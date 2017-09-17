@@ -19,8 +19,7 @@
                             Amount: $${receipt.value}<br>
                             <div>
                                 <span class="receiptTag" id = ${receipt.id}>Tags - 
-                                    <input type="text" placeholder="Add tag">
-                                    <input type="button" value="Add+">
+                                    <input type="button" name = ${receipt.id} value="Add +" onclick="addTag(this)">
                                 </span>
                             </div>
                         </div>`
@@ -31,22 +30,45 @@
                         button.type = "button"
                         button.value = tag+"  x"
                         button.name = receipt.id
-                        button.addEventListener('click', function(){ untag(tag, this) });
+                        button.addEventListener('click', function(){ 
+                            toggleTag(tag, this) 
+                        });
                         document.getElementById(receipt.id).appendChild(button)
                     });
                 }
             })
         }
 
-        function tag(tag, button) {
+        function addTag(input) {
+            var shouldExit = false
+            input.parentNode.childNodes.forEach(function(child){
+                if (child.type == "text") {
+                    child.parentNode.removeChild(child)
+                    shouldExit = true
+                    return
+                }
+            })
 
+            if (shouldExit) { return }
+
+            var text = document.createElement('input')
+            text.type = "text"
+            text.placeholder = "Add Tag"
+            text.name = input.name
+            text.addEventListener('keypress', function(event){
+                if (event.keyCode == 13) {
+                    toggleTag(text.value, text)
+                }
+            });
+
+            document.getElementById(input.name).appendChild(text)
         }
 
-        function untag(tag, button) {
+        function toggleTag(tag, input) {
             $.ajax({
                 url: api+"/tags/"+tag,
                 type: "PUT",
-                data: JSON.stringify(parseInt(button.name)),
+                data: JSON.stringify(parseInt(input.name)),
                 contentType: "application/json; charset=utf-8",
                 dataType:    "json",
                 success: function(){
@@ -59,7 +81,10 @@
             $.ajax({
                 url:         api+"/receipts",
                 type:        "POST",
-                data:        JSON.stringify({ merchant: $("#inputMerchant").val(), amount: parseInt($("#inputAmount").val()) }),
+                data:        JSON.stringify({ 
+                                merchant: $("#inputMerchant").val(), 
+                                amount: parseInt($("#inputAmount").val()) 
+                             }),
                 contentType: "application/json; charset=utf-8",
                 dataType:    "json",
                 success: function(){
@@ -68,8 +93,8 @@
             });            
         }
 
-        function toggleInputBox() {
-            $("#inputBox").toggle();
+        function toggleInputAddReceipt() {
+            $("#inputAddReceipt").toggle();
         }
     </script>
 </head>
@@ -77,8 +102,8 @@
 <body>
 <DIV id="container">
     <h1>My receipts</h1>
-    <div class="button" onclick="toggleInputBox()">+</div>
-    <div id = "inputBox">
+    <div class="button" onclick="toggleInputAddReceipt()">+</div>
+    <div id = "inputAddReceipt">
         <input type="text" id="inputMerchant" placeholder="Merchant">
         <input type="text" id="inputAmount" placeholder="Amount">
         <input type="button" value="Cancel" onclick = "toggleInputBox()">
