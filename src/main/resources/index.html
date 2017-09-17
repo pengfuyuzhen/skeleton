@@ -8,35 +8,68 @@
         const api = "http://localhost:8080";
         $(loadReceipts())
 
-        function loadReceipts(){
+        function loadReceipts() {
             $.getJSON(api + "/receipts", function(receipts){
                 $("#receiptList").empty();
-                for(var i = receipts.length-1; i >= 0 ; i--) {
+                for(var i = receipts.length - 1; i >= 0; i--) {
                     var receipt = receipts[i];
-                    $(`<div class="receipt">Time:${receipt.created} Name:${receipt.merchantName} Amount:$${receipt.value} <div><span class="receiptTag">Tags:${receipt.tags}</span></div></div>`)
-                        .appendTo($("#receiptList"));
+                    $(`<div class="receipt">
+                            Time: ${receipt.created}<br>
+                            Name: ${receipt.merchantName}<br>
+                            Amount: $${receipt.value}<br>
+                            <div>
+                                <span class="receiptTag" id = ${receipt.id}>Tags - 
+                                    <input type="text" placeholder="Add tag">
+                                    <input type="button" value="Add+">
+                                </span>
+                            </div>
+                        </div>`
+                    ).appendTo($("#receiptList"));
+
+                    receipt.tags.forEach(function(tag) {
+                        var button = document.createElement('input');
+                        button.type = "button"
+                        button.value = tag+"  x"
+                        button.name = receipt.id
+                        button.addEventListener('click', function(){ untag(tag, this) });
+                        document.getElementById(receipt.id).appendChild(button)
+                    });
                 }
             })
         }
 
-        function addReceipt(){
+        function tag(tag, button) {
+
+        }
+
+        function untag(tag, button) {
+            $.ajax({
+                url: api+"/tags/"+tag,
+                type: "PUT",
+                data: JSON.stringify(parseInt(button.name)),
+                contentType: "application/json; charset=utf-8",
+                dataType:    "json",
+                success: function(){
+                    loadReceipts();
+                },
+            });
+        }
+
+        function addReceipt() {
             $.ajax({
                 url:         api+"/receipts",
                 type:        "POST",
-                data:        JSON.stringify({ merchant: "Cornell Tech", amount: 19.99 }),
+                data:        JSON.stringify({ merchant: $("#inputMerchant").val(), amount: parseInt($("#inputAmount").val()) }),
                 contentType: "application/json; charset=utf-8",
-                dataType:    "json"
-            });
-
-            loadReceipts();
+                dataType:    "json",
+                success: function(){
+                    loadReceipts();
+                },
+            });            
         }
 
         function toggleInputBox() {
-            if (document.getElementById("inputBox").style.display == 'none') {
-                document.getElementById("inputBox").style.display = 'block';
-            } else {
-                document.getElementById("inputBox").style.display = 'none';
-            }
+            $("#inputBox").toggle();
         }
     </script>
 </head>
@@ -48,11 +81,11 @@
     <div id = "inputBox">
         <input type="text" id="inputMerchant" placeholder="Merchant">
         <input type="text" id="inputAmount" placeholder="Amount">
-        <input type="button" value="Cancel">
-        <input type="button" value="Save">
+        <input type="button" value="Cancel" onclick = "toggleInputBox()">
+        <input type="button" value="Save" onclick = "addReceipt()">
     </div>
-    <div id="receiptList">
-    </div>
+
+    <div id="receiptList"></div>
 </DIV>
 </body>
 
