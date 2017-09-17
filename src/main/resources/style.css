@@ -1,5 +1,6 @@
 body {
     font-family: 'Arial';
+    line-height: 20px;
 }
 
 #container {
@@ -10,10 +11,12 @@ H1 {
     float: left;
 }
 
+
 .button{
     background-color:#55A;
     border: 1px solid #229;
     width: 100px;
+    height:50px;
     float: right;
     font-size: 2em;
     color: white;
@@ -21,14 +24,16 @@ H1 {
 }
 
 #receiptList {
-    border: 1px solid green;
     clear: both;
 }
 
 .receipt {
     background-color: #eee;
-    margin-bottom: 5px;
-    font-size: 13px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    margin-bottom: 8px;
+    font-size: 15px;
 }
 
 .tagValue {

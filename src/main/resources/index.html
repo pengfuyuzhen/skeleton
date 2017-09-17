@@ -6,6 +6,7 @@
     <script data-require="jquery@*" data-semver="3.1.1" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script>
         const api = "http://localhost:8080";
+        const returnKey = 13
         $(loadReceipts())
 
         function loadReceipts() {
@@ -14,22 +15,21 @@
                 for(var i = receipts.length - 1; i >= 0; i--) {
                     var receipt = receipts[i];
                     $(`<div class="receipt">
-                            Time: ${receipt.created}<br>
-                            Name: ${receipt.merchantName}<br>
-                            Amount: $${receipt.value}<br>
-                            <div>
-                                <span class="receiptTag" id = ${receipt.id}>Tags - 
-                                    <input type="button" name = ${receipt.id} value="Add +" onclick="addTag(this)">
-                                </span>
+                            Time: <span class = "time">${receipt.created}</span><br>
+                            Name: <span class = "merchant">${receipt.merchantName}</span><br>
+                            Amount: <span class = "amount">${receipt.value}</span><br>
+                            Tags:
+                            <div class="tags" id = ${receipt.id}> 
+                                <input type="button" class = "add-tag" name = ${receipt.id} value="Add +" onclick="addTag(this)">
                             </div>
                         </div>`
                     ).appendTo($("#receiptList"));
 
                     receipt.tags.forEach(function(tag) {
-                        var button = document.createElement('input');
-                        button.type = "button"
-                        button.value = tag+"  x"
+                        var button = document.createElement('a');
+                        button.text = tag
                         button.name = receipt.id
+                        button.className = "tagValue"
                         button.addEventListener('click', function(){ 
                             toggleTag(tag, this) 
                         });
@@ -55,8 +55,9 @@
             text.type = "text"
             text.placeholder = "Add Tag"
             text.name = input.name
+            text.className = "tag_input"
             text.addEventListener('keypress', function(event){
-                if (event.keyCode == 13) {
+                if (event.keyCode == returnKey) {
                     toggleTag(text.value, text)
                 }
             });
@@ -82,8 +83,8 @@
                 url:         api+"/receipts",
                 type:        "POST",
                 data:        JSON.stringify({ 
-                                merchant: $("#inputMerchant").val(), 
-                                amount: parseInt($("#inputAmount").val()) 
+                                merchant: $("#merchant").val(), 
+                                amount: Number($("#amount").val()) 
                              }),
                 contentType: "application/json; charset=utf-8",
                 dataType:    "json",
@@ -93,8 +94,17 @@
             });            
         }
 
-        function toggleInputAddReceipt() {
-            $("#inputAddReceipt").toggle();
+        function toggleAddReceiptDialogue() {
+            dialogue = document.getElementById("addReceiptDialogue").firstChild
+            if (dialogue == null) {
+                $(`<div><input type="text" id="merchant" placeholder="Merchant">
+                  <input type="text" id="amount" placeholder="Amount">
+                  <input type="button" id="cancel-receipt" value="Cancel" onclick = "toggleAddReceiptDialogue()">
+                  <input type="button" id="save-receipt" value="Save" onclick = "addReceipt()"></div>`)
+                .appendTo($("#addReceiptDialogue"))
+            } else {
+                dialogue.parentNode.removeChild(dialogue)
+            }
         }
     </script>
 </head>
@@ -102,16 +112,9 @@
 <body>
 <DIV id="container">
     <h1>My receipts</h1>
-    <div class="button" onclick="toggleInputAddReceipt()">+</div>
-    <div id = "inputAddReceipt">
-        <input type="text" id="inputMerchant" placeholder="Merchant">
-        <input type="text" id="inputAmount" placeholder="Amount">
-        <input type="button" value="Cancel" onclick = "toggleInputBox()">
-        <input type="button" value="Save" onclick = "addReceipt()">
-    </div>
-
+    <div class="button" id = "add-receipt" onclick = "toggleAddReceiptDialogue()">+</div>
+    <div id = "addReceiptDialogue"></div>
     <div id="receiptList"></div>
 </DIV>
 </body>
-
 </html>
